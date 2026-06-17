@@ -9,3 +9,13 @@ class Employee(models.Model):
 
     def __str__(self):
         return self.fullname
+
+from django.db import models
+
+class LoginActivity(models.Model):
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
+    login_time = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=20)
+
+    def __str__(self):
+        return self.employee.fullname

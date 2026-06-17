@@ -1,27 +1,167 @@
+{% load static %}
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Login</title>
+    <title>Login - Employee Productivity & Wellbeing System</title>
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <style>
+
+        body{
+            margin:0;
+            font-family:Arial;
+            background:linear-gradient(135deg,#e0f2fe,#f8fafc);
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            min-height:100vh;
+        }
+
+        .login-card{
+            width:400px;
+            background:white;
+            padding:35px;
+            border-radius:20px;
+            box-shadow:0px 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .login-card h1{
+            text-align:center;
+            color:#0f172a;
+        }
+
+        .login-card p{
+            text-align:center;
+            color:gray;
+            margin-bottom:30px;
+        }
+
+        .form-group{
+            margin-bottom:18px;
+        }
+
+        label{
+            display:block;
+            margin-bottom:8px;
+            font-weight:bold;
+        }
+
+        input{
+            width:100%;
+            padding:12px;
+            border:1px solid #ccc;
+            border-radius:10px;
+            font-size:15px;
+            box-sizing:border-box;
+        }
+
+        input:focus{
+            outline:none;
+            border:2px solid #2563eb;
+        }
+
+        .btn{
+            width:100%;
+            padding:14px;
+            background:#2563eb;
+            color:white;
+            border:none;
+            border-radius:10px;
+            font-size:17px;
+            cursor:pointer;
+        }
+
+        .btn:hover{
+            background:#1d4ed8;
+        }
+
+        .error{
+            background:#fee2e2;
+            color:#991b1b;
+            padding:12px;
+            border-radius:10px;
+            margin-bottom:20px;
+            text-align:center;
+        }
+
+        .success{
+            background:#dcfce7;
+            color:#166534;
+            padding:12px;
+            border-radius:10px;
+            margin-bottom:20px;
+            text-align:center;
+        }
+
+        .bottom-text{
+            text-align:center;
+            margin-top:20px;
+        }
+
+        .bottom-text a{
+            text-decoration:none;
+            color:#2563eb;
+            font-weight:bold;
+        }
+
+    </style>
+
 </head>
+
 <body>
 
-<h1>Login Page</h1>
+<div class="login-card">
 
-{% if error %}
-<p style="color:red;">{{ error }}</p>
-{% endif %}
+    <h1><i class="fa-solid fa-right-to-bracket"></i> Login</h1>
 
-<form method="POST">
-    {% csrf_token %}
+    <p>Sign in to your account</p>
 
-    <label>Email:</label><br>
-    <input type="email" name="email"><br><br>
+    {% if error %}
+    <div class="error">
+        ❌ {{ error }}
+    </div>
+    {% endif %}
 
-    <label>Password:</label><br>
-    <input type="password" name="password"><br><br>
+    {% if msg %}
+    <div class="success">
+        ✅ {{ msg }}
+    </div>
+    {% endif %}
 
-    <button type="submit">Login</button>
-</form>
+    <form method="POST">
+
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label>Email Address</label>
+            <input type="email"
+                   name="email"
+                   placeholder="Enter email"
+                   required>
+        </div>
+
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password"
+                   name="password"
+                   placeholder="Enter password"
+                   required>
+        </div>
+
+        <button class="btn" type="submit">
+            Sign In
+        </button>
+
+    </form>
+
+    <div class="bottom-text">
+        Don't have an account?
+        <a href="/register/">Register</a>
+    </div>
+
+</div>
 
 </body>
 </html>
