@@ -149,3 +149,27 @@ footer{
     text-decoration:none;
     border-radius:6px;
 }
+
+.header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:30px;
+}
+
+.admin-btn,
+.logout-btn{
+    padding:10px 20px;
+    text-decoration:none;
+    color:white;
+    border-radius:8px;
+    margin-left:10px;
+}
+
+.admin-btn{
+    background:#2563eb;
+}
+
+.logout-btn{
+    background:#dc2626;
+}

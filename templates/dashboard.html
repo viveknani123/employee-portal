@@ -100,12 +100,28 @@
 </head>
 
 <body>
+<div class="header">
+
+    <h2>Employee Dashboard</h2>
+
+    <div>
+        <a href="{% url 'admin_dashboard' %}" class="admin-btn">
+            Admin Panel
+        </a>
+
+        <a href="{% url 'logout' %}" class="logout-btn">
+            Logout
+        </a>
+    </div>
+
+</div>
 
 <div class="sidebar">
 
     <h2>⚙️ EPWS</h2>
 
     <a href="#">🏠 Dashboard</a>
+    <a href="{% url 'admin_dashboard' %}">Admin Panel</a>
     <a href="/employees/">👥 Employees</a>
     <a href="#">📊 Analytics</a>
     <a href="#">📈 Reports</a>

@@ -55,10 +55,9 @@ def login(request):
 
         # Get user by email
         user = Employee.objects.filter(email=email).first()
-
+        print("User found:", user)
         # Check hashed password
         if user and check_password(password, user.password):
-
             # Save login activity
             LoginActivity.objects.create(
                 employee=user,
@@ -71,12 +70,12 @@ def login(request):
 
             return redirect('dashboard')
 
-        else:
-            return render(
-                request,
-                'login.html',
-                {'error': 'Invalid Email or Password'}
-            )
+        # Invalid credentials
+        return render(
+            request,
+            'login.html',
+            {'error': 'Invalid Email or Password'}
+        )
 
     return render(request, 'login.html')
 
@@ -111,6 +110,28 @@ def dashboard(request):
     return render(
         request,
         'dashboard.html',
+        context
+    )
+def admin_dashboard(request):
+
+    if 'user_id' not in request.session:
+        return redirect('login')
+
+    total_employees = Employee.objects.count()
+    total_logins = LoginActivity.objects.count()
+    departments = Employee.objects.values(
+        'department'
+    ).distinct().count()
+
+    context = {
+        'total_employees': total_employees,
+        'total_logins': total_logins,
+        'departments': departments,
+    }
+
+    return render(
+        request,
+        'admin_dashboard.html',
         context
     )
 def employees(request):
@@ -191,19 +212,22 @@ def edit_employee(request, id):
     )
     
 def view_employee(request, id):
+    employee = Employee.objects.get(id=id)
+    return render(request, 'view_employee.html', {'employee': employee})
 
+
+def edit_employee(request, id):
     employee = Employee.objects.get(id=id)
 
-    context = {
-        'employee': employee
-    }
+    if request.method == 'POST':
+        employee.name = request.POST['name']
+        employee.email = request.POST['email']
+        employee.department = request.POST['department']
+        employee.salary = request.POST['salary']
+        employee.save()
+        return redirect('home')
 
-    return render(
-        request,
-        'view_employee.html',
-        context
-    )
-
+    return render(request, 'edit_employee.html', {'employee': employee})
 def delete_employee(request, id):
 
     Employee.objects.filter(id=id).delete()
