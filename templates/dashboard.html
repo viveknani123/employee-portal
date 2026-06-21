@@ -100,6 +100,28 @@
 </head>
 
 <body>
+<div class="cards">
+
+    <div class="card">
+        <h2>{{ total_employees }}</h2>
+        <p>Total Employees</p>
+    </div>
+
+    <div class="card">
+        <h2>{{ total_departments }}</h2>
+        <p>Departments</p>
+    </div>
+
+    <div class="card">
+        <h2>{{ total_logins }}</h2>
+        <p>Total Logins</p>
+    </div>
+
+</div>
+<div class="chart-box">
+    <h3>Department-wise Employees</h3>
+    <canvas id="deptChart"></canvas>
+</div>
 <div class="header">
 
     <h2>Employee Dashboard</h2>
@@ -126,6 +148,11 @@
     <a href="#">📊 Analytics</a>
     <a href="#">📈 Reports</a>
     <a href="/logout/">🚪 Logout</a>
+    {% if request.session.is_admin %}
+<a href="{% url 'admin_dashboard' %}">
+    Admin Panel
+</a>
+{% endif %}
 
 </div>
 
@@ -279,5 +306,64 @@ new Chart(pie,{
 });
 
 </script>
+<script>
+const labels = JSON.parse('{{ labels|escapejs }}');
+const counts = JSON.parse('{{ counts|escapejs }}');
+
+const ctx = document.getElementById('deptChart');
+
+new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: labels,
+        datasets: [{
+            label: 'Employees',
+            data: counts
+        }]
+    },
+    options: {
+        responsive: true
+    }
+});
+<script>
+const labels = JSON.parse('{{ labels|escapejs }}');
+const counts = JSON.parse('{{ counts|escapejs }}');
+
+new Chart(document.getElementById('deptChart'), {
+    type: 'bar',
+    data: {
+        labels: labels,
+        datasets: [{
+            label: 'Employees',
+            data: counts
+        }]
+    }
+});
+</script>
+<script>
+new Chart(document.getElementById('pieChart'), {
+    type: 'pie',
+    data: {
+        labels: labels,
+        datasets: [{
+            data: counts
+        }]
+    }
+});
+</script>
+</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% if request.session.is_admin %}
+<a href="{% url 'admin_dashboard' %}"
+   class="btn btn-primary">
+    Admin Panel
+</a>
+{% endif %}
+
+<a href="{% url 'logout' %}"
+   class="btn btn-danger">
+    Logout
+</a>
+
 </body>
 </html>

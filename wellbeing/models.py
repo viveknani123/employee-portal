@@ -6,6 +6,7 @@ class Employee(models.Model):
     phone = models.CharField(max_length=10)
     department = models.CharField(max_length=100)
     password = models.CharField(max_length=128)
+    is_admin = models.BooleanField(default=False)
 
     def __str__(self):
         return self.fullname

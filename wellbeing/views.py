@@ -5,6 +5,8 @@ from .models import Employee, LoginActivity
 from django.db.models import Q
 from django.http import HttpResponse
 import csv
+from django.db.models import Count
+import json
 
 
 
@@ -67,6 +69,7 @@ def login(request):
             # Create session
             request.session['user_id'] = user.id
             request.session['user_name'] = user.fullname
+            request.session['is_admin'] = user.is_admin
 
             return redirect('dashboard')
 
@@ -86,25 +89,26 @@ def dashboard(request):
     if 'user_id' not in request.session:
         return redirect('login')
 
-    user = Employee.objects.get(
-        id=request.session['user_id']
-    )
-
     total_employees = Employee.objects.count()
-
     total_departments = Employee.objects.values(
         'department'
     ).distinct().count()
+    total_logins = LoginActivity.objects.count()
+    department_data = (
+        Employee.objects
+        .values('department')
+        .annotate(count=Count('id'))
+    )
 
-    activities = LoginActivity.objects.order_by(
-        '-login_time'
-    )[:5]
+    labels = [item['department'] for item in department_data]
+    counts = [item['count'] for item in department_data]
 
     context = {
-        'user': user,
         'total_employees': total_employees,
         'total_departments': total_departments,
-        'activities': activities,
+        'total_logins': total_logins,
+        'labels': json.dumps(labels),
+        'counts': json.dumps(counts),
     }
 
     return render(
@@ -113,6 +117,8 @@ def dashboard(request):
         context
     )
 def admin_dashboard(request):
+    if not request.session.get('is_admin'):
+        return redirect('dashboard')
 
     if 'user_id' not in request.session:
         return redirect('login')
@@ -217,6 +223,8 @@ def view_employee(request, id):
 
 
 def edit_employee(request, id):
+    if not request.session.get('is_admin'):
+     return redirect('dashboard')
     employee = Employee.objects.get(id=id)
 
     if request.method == 'POST':
@@ -229,7 +237,8 @@ def edit_employee(request, id):
 
     return render(request, 'edit_employee.html', {'employee': employee})
 def delete_employee(request, id):
-
+    if not request.session.get('is_admin'):
+        return redirect('dashboard')
     Employee.objects.filter(id=id).delete()
 
     return redirect('employees')

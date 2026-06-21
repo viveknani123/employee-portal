@@ -173,3 +173,36 @@ footer{
 .logout-btn{
     background:#dc2626;
 }
+.cards{
+    display:flex;
+    gap:20px;
+    flex-wrap:wrap;
+    margin-bottom:30px;
+}
+
+.card{
+    background:white;
+    padding:20px;
+    width:220px;
+    border-radius:15px;
+    box-shadow:0px 5px 15px rgba(0,0,0,0.1);
+    text-align:center;
+}
+
+.card h2{
+    color:#2563eb;
+    font-size:35px;
+    margin:0;
+}
+
+.card p{
+    color:gray;
+    margin-top:10px;
+}
+.chart-box{
+    background:white;
+    padding:20px;
+    border-radius:15px;
+    box-shadow:0px 5px 15px rgba(0,0,0,0.1);
+    margin-top:30px;
+}
