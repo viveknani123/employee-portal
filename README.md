@@ -1,59 +1,102 @@
-Employee Productivity & Digital Wellbeing Monitoring System
+# Employee Productivity & Digital Wellbeing Monitoring System
 
-A Django-based web application for tracking employee productivity and digital wellbeing, containerized with Docker and backed by PostgreSQL, with an automated CI pipeline via GitHub Actions.
+A Django-based web application for tracking employee productivity and digital wellbeing, containerized with Docker, backed by PostgreSQL, and deployed on Kubernetes (k3s) on AWS EC2 with a full CI/CD pipeline.
 
-Features
+## Features
+
+- User registration and authentication
+- Productivity tracking dashboard
+- PostgreSQL database backend
+- Fully containerized with Docker & Docker Compose
+- Deployed on Kubernetes (k3s) with multi-replica app + separate DB service
+- Automated CI/CD pipeline (GitHub Actions): build → test → push to Docker Hub → auto-deploy to Kubernetes on every push to main
+
+## Tech Stack
+
+- **Backend:** Python, Django
+- **Database:** PostgreSQL
+- **Containerization:** Docker, Docker Compose
+- **Orchestration:** Kubernetes (k3s)
+- **Infrastructure as Code:** Terraform (AWS EC2, Security Groups)
+- **CI/CD:** GitHub Actions
+- **Cloud:** AWS (EC2, EBS gp3)
+- **Frontend:** HTML, CSS
+
+## Architecture
+
+GitHub Push (main)
+|
+GitHub Actions CI/CD
+|-- Run Django checks
+|-- Build Docker image
+|-- Push to Docker Hub
+|-- SSH to EC2 --> kubectl rollout restart
+|
+AWS EC2 (Terraform-provisioned)
+|
+k3s (Kubernetes)
+|-- Deployment: employee-portal (2 replicas, NodePort 30080)
+|-- Deployment: db (PostgreSQL, ClusterIP service "db")
 
 
-User registration and authentication
-Productivity tracking dashboard
-PostgreSQL database backend
-Fully containerized with Docker & Docker Compose
-Automated CI pipeline (GitHub Actions) for build/test verification on every push
+## Getting Started
 
+### Run locally with Docker
 
-Tech Stack
-
-
-Backend: Python, Django
-Database: PostgreSQL
-Containerization: Docker, Docker Compose
-CI/CD: GitHub Actions
-Frontend: HTML, CSS
-
-
-Getting Started
-
-Prerequisites
-
-
-Docker & Docker Compose installed
-
-
-Run locally with Docker
-
-bashgit clone https://github.com/viveknani123/employee-portal.git
+```bash
+git clone https://github.com/viveknani123/employee-portal.git
 cd employee-portal
 docker-compose up --build
+```
 
-The app will be available at http://localhost:8000
+App available at `http://localhost:8000`
 
-Run without Docker
+### Run without Docker
 
-bashpip install -r requirements.txt
+```bash
+pip install -r requirements.txt
 python manage.py migrate
 python manage.py runserver
+```
 
-CI/CD
+## Kubernetes Deployment (Production-style)
 
-This repo uses GitHub Actions to automatically build and verify the project on every push, configured for Python 3.13. See .github/workflows/ for the pipeline definition.
+Infrastructure is provisioned via Terraform (`terraform-aws-infra` repo), then deployed to a k3s cluster on EC2:
 
-Project Structure
+```bash
+kubectl apply -f deployment.yaml
+kubectl apply -f service.yaml
+kubectl apply -f postgres.yaml
+```
 
-employee_portal/   - Django project settings
-wellbeing/          - Core app (productivity tracking)
-templates/          - HTML templates
-static/             - Static assets (CSS/JS)
+Key engineering decisions:
+- Upgraded EBS volume from gp2 to gp3 to resolve an I/O bottleneck (100 → 3000 baseline IOPS) that was causing API server timeouts under load on a t3.micro instance
+- Added swap space to handle memory pressure on the 1GB RAM instance
+- Used Kubernetes DNS-based service discovery (`db` service name) so the Django app connects to PostgreSQL without hardcoded IPs
+
+## CI/CD Pipeline
+
+On every push to `main`:
+1. Run Django checks (`manage.py check`)
+2. Build Docker image and push to Docker Hub
+3. SSH into EC2 and trigger a rolling restart on the Kubernetes deployment
+
+See `.github/workflows/` for the full pipeline definition.
+
+## Project Structure
+
+employee_portal/ - Django project settings
+wellbeing/ - Core app (productivity tracking)
+templates/ - HTML templates
+static/ - Static assets (CSS/JS)
 Dockerfile
 docker-compose.yml
 requirements.txt
+
+
+## Future Enhancements
+
+- Prometheus + Grafana monitoring (deprioritized due to RAM constraints on t3.micro; would need a larger instance or resource-tuned Helm charts)
+- HTTPS via Ingress + cert-manager
+- Multi-environment (dev/staging/prod) setup using Terraform workspaces
+
