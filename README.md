@@ -105,3 +105,16 @@ requirements.txt
 - Configured `readinessProbe` and `livenessProbe` in the Deployment spec — 
   Kubernetes now automatically restarts unresponsive pods and withholds 
   traffic from pods that aren't ready, improving reliability without manual intervention.
+
+## Autoscaling & Metrics
+- Installed `metrics-server` (with `--kubelet-insecure-tls`, required for self-managed k3s
+  with self-signed kubelet certs) to enable `kubectl top` and CPU-based autoscaling.
+- Added `resources.requests`/`limits` to the Deployment spec — required prerequisite for HPA,
+  since percentage-based CPU targets need a baseline request value to compute against.
+- Configured a HorizontalPodAutoscaler (`hpa.yaml`): min 2 / max 5 replicas, targeting 20% CPU
+  utilization (intentionally low threshold for demo purposes on a low-traffic instance).
+- Verified end-to-end: HPA correctly reads live CPU metrics (`kubectl get hpa` showed real
+  percentages, not `<unknown>`). Ran a synthetic load test with parallel `busybox` pods hitting
+  `/health/`; CPU peaked at ~12%, under the 20% threshold, so no scale-up event was observed.
+  This confirmed the HPA pipeline (metrics-server → HPA → Deployment) is correctly wired,
+  even though the specific test didn't generate enough load to cross the threshold.
