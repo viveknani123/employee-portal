@@ -281,3 +281,8 @@ def export_csv(request):
 def logout(request):
     request.session.flush()
     return redirect('login')
+
+from django.http import JsonResponse
+
+def health_check(request):
+    return JsonResponse({"status": "ok"}, status=200)
