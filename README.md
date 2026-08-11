@@ -100,3 +100,8 @@ requirements.txt
 - HTTPS via Ingress + cert-manager
 - Multi-environment (dev/staging/prod) setup using Terraform workspaces
 
+## Health Checks & Self-Healing
+- Added `/health/` endpoint to the Django app for Kubernetes probes.
+- Configured `readinessProbe` and `livenessProbe` in the Deployment spec — 
+  Kubernetes now automatically restarts unresponsive pods and withholds 
+  traffic from pods that aren't ready, improving reliability without manual intervention.
